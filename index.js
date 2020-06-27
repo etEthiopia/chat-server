@@ -3,8 +3,8 @@ var socket = require('socket.io');
 require('dotenv').config();
 
 var app = express();
-var server = app.listen(process.env.PORT, process.env.HOST, function() {
-	console.log('Server is up in ' + process.env.HOST + ':' + process.env.PORT);
+var server = app.listen(process.env.PORT, process.env.HOST, function () {
+  console.log('Server is up in ' + process.env.HOST + ':' + process.env.PORT);
 });
 
 // Reserved Events
@@ -27,31 +27,44 @@ const userMap = new Map();
 
 // socket setup
 var io = socket(server);
-io.on('connection', function(socket) {
-	onEachUserConnection(socket);
+io.on('connection', function (socket) {
+  onEachUserConnection(socket);
 });
 
 function onEachUserConnection(socket) {
-	console.log('--------------------');
-	console.log('Connected => Socket ID: ' + socket.id + ', User ' + JSON.stringify(socket.handshake.query));
-	var from_user_id = socket.handshake.query.from;
-	let userMapVal = { socket_id: socket.id };
-	addUserToMap(from_user_id, userMapVal);
-	printOnlineUsers();
-	onDisconnect(socket);
+  console.log('--------------------');
+  console.log('Connected => Socket ID: ' + socket.id + ', User ' + JSON.stringify(socket.handshake.query));
+  var from_user_id = socket.handshake.query.from;
+  let userMapVal = {
+    socket_id: socket.id
+  };
+  addUserToMap(from_user_id, userMapVal);
+  printOnlineUsers();
+  onMessage(socket);
+  onDisconnect(socket);
+}
+
+function onMessage(socket) {
+  socket.on(EVENT_SINGLE_CHAT_MESSAGE, function (chat_message) {
+    singleChantHandler(socket, chat_message);
+  })
+}
+
+function singleChantHandler(socket, chat_message) {
+  print("onMessage: " + JSON.stringify(chat_message));
 }
 
 function addUserToMap(key_user_id, socket_id) {
-	userMap.set(key_user_id, socket_id);
+  userMap.set(key_user_id, socket_id);
 }
 
 function printOnlineUsers() {
-	console.log('Online Users: ' + userMap.size);
+  console.log('Online Users: ' + userMap.size);
 }
 
 function onDisconnect(socket) {
-	socket.on(ON_DISCONNECT, function() {
-		console.log('Disconnected => Socket ID: ' + socket.id + ', User ' + JSON.stringify(socket.handshake.query));
-		socket.removeAllListeners(ON_DISCONNECT);
-	});
+  socket.on(ON_DISCONNECT, function () {
+    console.log('Disconnected => Socket ID: ' + socket.id + ', User ' + JSON.stringify(socket.handshake.query));
+    socket.removeAllListeners(ON_DISCONNECT);
+  });
 }
