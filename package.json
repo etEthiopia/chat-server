@@ -19,7 +19,7 @@
     "mongoose": "^5.8.10",
     "morgan": "~1.9.1",
     "nodemon": "^1.19.4",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.5.0"
   },
   "devDependencies": {
     "dotenv": "^8.2.0"
